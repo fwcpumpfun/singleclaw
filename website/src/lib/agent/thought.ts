@@ -1,20 +1,14 @@
 /**
  * Genererer agent-thought per cyklus — én tanke fra den ene agent.
- * Bruger OpenAI/Kie hvis API key findes, ellers rige fallback-templates.
+ * Bruger Kie.ai (GPT-5-2) hvis KIE_API_KEY findes, ellers rige fallback-templates.
  */
 
-import OpenAI from "openai";
+import { hasKieApiKey, kieChatCompletions } from "./kie";
 
 const TOKEN_DECIMALS = 6;
 
 export const AGENT_NAME = "CLAW" as const;
 export type AgentThought = { agent: typeof AGENT_NAME; text: string };
-
-function getClient(): OpenAI | null {
-  const key = process.env.KIE_API_KEY;
-  if (!key) return null;
-  return new OpenAI({ apiKey: key, baseURL: "https://api.kie.ai/gpt-5-2/v1" });
-}
 
 export type CycleData = {
   claimed?: number;
@@ -50,7 +44,7 @@ Every cycle you observe the on-chain state, reason about what to do, execute the
 
 Write 3-5 natural sentences. Talk about what you observed this cycle, what you decided to do and why, and what actually happened on-chain. Reference the real numbers (SOL claimed, tokens burned, LP added, strategy chosen). Sound like a single operator writing a brief log — grounded, clear, never hyped. No emojis, no hashtags, no marketing language.`;
 
-async function generateThought(client: OpenAI, data: CycleData): Promise<string | null> {
+async function generateThoughtViaKie(data: CycleData): Promise<string | null> {
   const burnStr = fmtBurn(data.burnedTokens);
   const lpNote = (data.lpSol ?? 0) > 0 ? `, ${fmt(data.lpSol)} SOL added to LP` : "";
   const stratNote = data.strategy ? ` Strategy: "${data.strategy}".` : "";
@@ -63,19 +57,16 @@ async function generateThought(client: OpenAI, data: CycleData): Promise<string 
   }
 
   try {
-    const res = await client.chat.completions.create({
-      model: "gpt-5-2",
-      messages: [
+    const text = await kieChatCompletions(
+      [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: context },
       ],
-      max_tokens: 300,
-      temperature: 0.85,
-    });
-    const text = res.choices[0]?.message?.content?.trim();
+      { max_tokens: 300, temperature: 0.85 },
+    );
     if (text && text.length > 5) return text;
   } catch (err) {
-    console.warn("[thought] OpenAI fejl:", err instanceof Error ? err.message : err);
+    console.warn("[thought] Kie.ai fejl:", err instanceof Error ? err.message : err);
   }
   return null;
 }
@@ -111,10 +102,9 @@ function fallback(data: CycleData): string {
 }
 
 export async function generateThoughtForCycle(data: CycleData): Promise<AgentThought> {
-  const client = getClient();
   let text: string | null = null;
-  if (client) {
-    text = await generateThought(client, data);
+  if (hasKieApiKey()) {
+    text = await generateThoughtViaKie(data);
   }
   return {
     agent: AGENT_NAME,

@@ -12,6 +12,7 @@ export default function HomeHeader() {
       <nav className="home-header-nav">
         <Link href="/proof">Proof</Link>
         <Link href="/thoughts">Thoughts</Link>
+        <Link href="/chat">Chat</Link>
         <Link href="/roadmap">Roadmap</Link>
         <a href="https://x.com/singleclaw_" target="_blank" rel="noopener noreferrer">X</a>
         <a href={PUMP_URL} target="_blank" rel="noopener noreferrer">Pump.fun</a>
