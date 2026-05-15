@@ -185,7 +185,7 @@ export default function BentoHome() {
         </p>
         <div className="b-cta-links">
           <a href={PUMP_URL} className="b-btn b-btn-primary" target="_blank" rel="noopener noreferrer">Buy on Pump.fun →</a>
-          <a href="https://x.com/singleclawpf" className="b-btn b-btn-ghost" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+          <a href="https://x.com/singleclaw_" className="b-btn b-btn-ghost" target="_blank" rel="noopener noreferrer">X / Twitter</a>
           <a href="/proof" className="b-btn b-btn-ghost">Proof</a>
         </div>
       </div>

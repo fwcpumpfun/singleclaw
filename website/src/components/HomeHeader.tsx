@@ -13,7 +13,7 @@ export default function HomeHeader() {
         <Link href="/proof">Proof</Link>
         <Link href="/thoughts">Thoughts</Link>
         <Link href="/roadmap">Roadmap</Link>
-        <a href="https://x.com/singleclawpf" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="https://x.com/singleclaw_" target="_blank" rel="noopener noreferrer">X</a>
         <a href={PUMP_URL} target="_blank" rel="noopener noreferrer">Pump.fun</a>
         <Link href="/docs">Docs</Link>
       </nav>
